@@ -15,6 +15,7 @@ interface Props {
   onDeleteFile: (id: string) => void
   onDeleteFolder: (id: string) => void
   onRenameFile: (id: string, name: string) => void
+  onRenameFolder: (id: string, name: string) => void
 }
 
 type ContextMenu = {
@@ -27,11 +28,11 @@ type ContextMenu = {
 
 export default function Sidebar({
   folders, files, activeFileId, open, loading,
-  onSelectFile, onNewFile, onNewFolder, onDeleteFile, onDeleteFolder, onRenameFile
+  onSelectFile, onNewFile, onNewFolder, onDeleteFile, onDeleteFolder, onRenameFile, onRenameFolder
 }: Props) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null)
-  const [renaming, setRenaming] = useState<{ id: string; value: string } | null>(null)
+  const [renaming, setRenaming] = useState<{ id: string; value: string; type: 'file' | 'folder' } | null>(null)
   const renameRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -60,7 +61,11 @@ export default function Sidebar({
 
   function confirmRename() {
     if (renaming && renaming.value.trim()) {
-      onRenameFile(renaming.id, renaming.value.trim())
+      if (renaming.type === 'folder') {
+        onRenameFolder(renaming.id, renaming.value.trim())
+      } else {
+        onRenameFile(renaming.id, renaming.value.trim())
+      }
     }
     setRenaming(null)
   }
@@ -357,20 +362,30 @@ export default function Sidebar({
                 icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>}
                 label="Rename"
                 onClick={() => {
-                  setRenaming({ id: contextMenu.id, value: contextMenu.name })
+                  setRenaming({ id: contextMenu.id, value: contextMenu.name, type: 'file' })
                   setContextMenu(null)
                 }}
               />
             )}
             {contextMenu.type === 'folder' && (
-              <ContextMenuItem
-                icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>}
-                label="New file here"
-                onClick={() => {
-                  onNewFile(contextMenu.id, 'Untitled')
-                  setContextMenu(null)
-                }}
-              />
+              <>
+                <ContextMenuItem
+                  icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>}
+                  label="Rename"
+                  onClick={() => {
+                    setRenaming({ id: contextMenu.id, value: contextMenu.name, type: 'folder' })
+                    setContextMenu(null)
+                  }}
+                />
+                <ContextMenuItem
+                  icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>}
+                  label="New file here"
+                  onClick={() => {
+                    onNewFile(contextMenu.id, 'Untitled')
+                    setContextMenu(null)
+                  }}
+                />
+              </>
             )}
             <div style={{ height: '1px', background: '#2a2a3a', margin: '4px 0' }} />
             <ContextMenuItem

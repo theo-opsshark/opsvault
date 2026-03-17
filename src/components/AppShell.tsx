@@ -91,6 +91,11 @@ export default function AppShell({ user }: Props) {
     if (data) setFiles(prev => prev.map(f => f.id === id ? data : f))
   }
 
+  async function handleRenameFolder(id: string, name: string) {
+    const { data } = await supabase.from('folders').update({ name }).eq('id', id).select().single()
+    if (data) setFolders(prev => prev.map(f => f.id === id ? data : f))
+  }
+
   return (
     <div style={{
       display: 'flex',
@@ -118,6 +123,7 @@ export default function AppShell({ user }: Props) {
           onDeleteFile={handleDeleteFile}
           onDeleteFolder={handleDeleteFolder}
           onRenameFile={handleRenameFile}
+          onRenameFolder={handleRenameFolder}
           loading={loading}
         />
         <MainPanel
