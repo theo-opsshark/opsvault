@@ -6,7 +6,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 
 interface Props {
-  user: User
+  user: User | null
   sidebarOpen: boolean
   onToggleSidebar: () => void
   onNewFile: () => void
@@ -23,8 +23,8 @@ export default function TopBar({ user, sidebarOpen, onToggleSidebar, onNewFile, 
     router.push('/login')
   }
 
-  const avatar = user.user_metadata?.avatar_url as string | undefined
-  const name = (user.user_metadata?.full_name as string) || user.email || 'User'
+  const avatar = user?.user_metadata?.avatar_url as string | undefined
+  const name = (user?.user_metadata?.full_name as string) || user?.email || 'Travis'
   const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
 
   return (
@@ -210,7 +210,7 @@ export default function TopBar({ user, sidebarOpen, onToggleSidebar, onNewFile, 
                 <div style={{ color: '#e2e8f0', fontSize: '13px', fontWeight: '500', marginBottom: '2px' }}>
                   {name}
                 </div>
-                <div style={{ color: '#64748b', fontSize: '12px' }}>{user.email}</div>
+                <div style={{ color: '#64748b', fontSize: '12px' }}>{user?.email}</div>
               </div>
               <button
                 onClick={handleSignOut}

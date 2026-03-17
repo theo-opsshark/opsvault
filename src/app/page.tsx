@@ -1,14 +1,14 @@
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 
 export default async function Home() {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const cookieStore = await cookies()
+  const auth = cookieStore.get('vault_auth')
 
-  if (!user) {
+  if (!auth || auth.value !== 'true') {
     redirect('/login')
   }
 
-  return <AppShell user={user} />
+  return <AppShell user={null} />
 }

@@ -9,7 +9,7 @@ import MainPanel from './MainPanel'
 import TopBar from './TopBar'
 
 interface Props {
-  user: User
+  user: User | null
 }
 
 export default function AppShell({ user }: Props) {
@@ -40,7 +40,7 @@ export default function AppShell({ user }: Props) {
   async function handleNewFile(folderId: string | null, name: string) {
     const { data, error } = await supabase
       .from('files')
-      .insert({ name, content: `# ${name}\n\n`, folder_id: folderId, author: user.email })
+      .insert({ name, content: `# ${name}\n\n`, folder_id: folderId, author: user?.email ?? 'travis' })
       .select()
       .single()
     if (!error && data) {
