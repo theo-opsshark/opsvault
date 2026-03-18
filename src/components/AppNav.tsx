@@ -339,8 +339,11 @@ export default function AppNav({
         {sidebarOpen && (
           <div style={{ flex: 1, overflow: 'auto', padding: '8px 4px' }}>
             {/* Dashboard link */}
-            <Link
-              href="/"
+            <button
+              onClick={() => {
+                router.push('/')
+                if (isMobile) onToggleSidebar()
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -357,9 +360,9 @@ export default function AppNav({
                 cursor: 'pointer',
                 transition: 'all 0.15s',
                 minHeight: '36px',
-              }}
-              onClick={() => {
-                if (isMobile) onToggleSidebar()
+                fontFamily: 'inherit',
+                width: '100%',
+                textAlign: 'left',
               }}
               onMouseEnter={e => {
                 if (!isDashboardActive) {
@@ -388,7 +391,7 @@ export default function AppNav({
                 <polyline points="12 12.5 20 9.5 20 16.5 12 19.5 4 16.5 4 9.5 12 12.5" />
               </svg>
               <span>Dashboard</span>
-            </Link>
+            </button>
 
             {/* Wiki section with folder tree */}
             <div style={{ marginTop: '8px' }}>
