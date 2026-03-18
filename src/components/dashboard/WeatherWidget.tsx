@@ -11,7 +11,7 @@ function getWeatherDescription(code: number): { label: string; emoji: string } {
 
 async function fetchWeather() {
   const res = await fetch(
-    'https://api.open-meteo.com/v1/forecast?latitude=41.4553&longitude=-81.9179&current=temperature_2m,weathercode,windspeed_10m,relative_humidity_2m&temperature_unit=fahrenheit&windspeed_unit=mph',
+    'https://api.open-meteo.com/v1/forecast?latitude=41.4553&longitude=-81.9179&current=temperature_2m,weathercode,windspeed_10m,relative_humidity_2m&daily=weathercode,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America%2FNew_York',
     { next: { revalidate: 1800 } }
   )
   if (!res.ok) throw new Error('Weather fetch failed')
@@ -19,7 +19,10 @@ async function fetchWeather() {
 }
 
 export default async function WeatherWidget() {
-  let data: { current: { temperature_2m: number; weathercode: number; windspeed_10m: number; relative_humidity_2m: number } } | null = null
+  let data: {
+    current: { temperature_2m: number; weathercode: number; windspeed_10m: number; relative_humidity_2m: number }
+    daily?: { weathercode: number[]; temperature_2m_max: number[]; temperature_2m_min: number[]; time: string[] }
+  } | null = null
   let error = false
 
   try {
@@ -48,6 +51,7 @@ export default async function WeatherWidget() {
 
   const c = data.current
   const weather = getWeatherDescription(c.weathercode)
+  const daily = data.daily
 
   return (
     <div style={cardStyle}>
@@ -64,7 +68,7 @@ export default async function WeatherWidget() {
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: '20px' }}>
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '16px' }}>
         <div>
           <div style={{ fontSize: '11px', color: '#4a4a6a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>Wind</div>
           <div style={{ fontSize: '13px', color: '#94a3b8' }}>{Math.round(c.windspeed_10m)} mph</div>
@@ -74,6 +78,34 @@ export default async function WeatherWidget() {
           <div style={{ fontSize: '13px', color: '#94a3b8' }}>{c.relative_humidity_2m}%</div>
         </div>
       </div>
+
+      {daily && daily.time && daily.time.length > 1 && (
+        <div style={{ borderTop: '1px solid #2a2a3a', paddingTop: '12px' }}>
+          <div style={{ fontSize: '11px', color: '#4a4a6a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', fontWeight: '600' }}>
+            5-Day Forecast
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {daily.time.slice(1, 6).map((date, idx) => {
+              const dayNum = idx + 1
+              const weatherCode = daily.weathercode[dayNum]
+              const dayWeather = getWeatherDescription(weatherCode)
+              const high = Math.round(daily.temperature_2m_max[dayNum])
+              const low = Math.round(daily.temperature_2m_min[dayNum])
+              const dateObj = new Date(date)
+              const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()]
+              return (
+                <div key={date} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
+                  <div style={{ color: '#94a3b8', minWidth: '35px' }}>{dayName}</div>
+                  <div style={{ color: '#64748b' }}>{dayWeather.emoji}</div>
+                  <div style={{ color: '#94a3b8', minWidth: '45px', textAlign: 'right' }}>
+                    {high}° / {low}°
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
