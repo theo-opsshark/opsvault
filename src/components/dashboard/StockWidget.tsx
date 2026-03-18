@@ -21,10 +21,10 @@ async function fetchStock(ticker: string): Promise<StockData | null> {
     const result = json?.chart?.result?.[0]
     if (!result) return null
 
-    const closes = result.indicators?.quote?.[0]?.close ?? []
+    const closes = (result.indicators?.quote?.[0]?.close ?? []).filter((c: number | null) => c != null)
+    if (closes.length < 2) return null
     const prev = closes[closes.length - 2]
     const current = closes[closes.length - 1]
-    if (prev == null || current == null) return null
 
     const change = current - prev
     const changePct = (change / prev) * 100
