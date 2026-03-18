@@ -5,7 +5,10 @@ export const metadata: Metadata = {
   title: 'OpsVault',
   description: 'Shared knowledge base for Travis & Theo',
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
   },
 }
 
