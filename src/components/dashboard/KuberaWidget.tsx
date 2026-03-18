@@ -69,6 +69,9 @@ async function fetchPortfolioData(): Promise<PortfolioData | null> {
     const method = 'GET'
     const { signature, timestamp } = generateSignature(method, path)
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+
     const res = await fetch(`${KUBERA_BASE_URL}${path}`, {
       method,
       headers: {
@@ -77,7 +80,10 @@ async function fetchPortfolioData(): Promise<PortfolioData | null> {
         'x-signature': signature,
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
     })
+
+    clearTimeout(timeoutId)
 
     if (!res.ok) {
       console.error(`Kubera API error: ${res.status}`)
