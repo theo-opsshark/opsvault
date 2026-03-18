@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Folder, VaultFile } from '@/lib/supabase'
 import {
   DndContext,
@@ -26,6 +26,8 @@ interface Props {
   open: boolean
   isMobile: boolean
   loading: boolean
+  sidebarWidth: number
+  onSidebarWidthChange: (width: number) => void
   onSelectFile: (id: string) => void
   onNewFile: (folderId: string | null, name: string) => void
   onNewFolder: (name: string, parentId: string | null) => void
@@ -233,6 +235,7 @@ function SortableFolderRow({
 
 export default function Sidebar({
   folders, files, activeFileId, open, isMobile, loading,
+  sidebarWidth, onSidebarWidthChange,
   onSelectFile, onNewFile, onNewFolder,
   onDeleteFile, onDeleteFolder, onRenameFile, onRenameFolder,
   onReorderFolders, onReorderFiles,
@@ -241,6 +244,9 @@ export default function Sidebar({
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null)
   const [renaming, setRenaming] = useState<{ id: string; value: string; type: 'file' | 'folder' } | null>(null)
   const renameRef = useRef<HTMLInputElement>(null)
+  const isResizing = useRef(false)
+  const startX = useRef(0)
+  const startWidth = useRef(0)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -254,6 +260,47 @@ export default function Sidebar({
     window.addEventListener('click', close)
     return () => window.removeEventListener('click', close)
   }, [])
+
+  // Resize drag handlers
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    isResizing.current = true
+    startX.current = e.clientX
+    startWidth.current = sidebarWidth
+
+    function onMouseMove(ev: MouseEvent) {
+      if (!isResizing.current) return
+      const delta = ev.clientX - startX.current
+      const newWidth = Math.max(180, Math.min(480, startWidth.current + delta))
+      onSidebarWidthChange(newWidth)
+    }
+    function onMouseUp() {
+      isResizing.current = false
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }, [sidebarWidth, onSidebarWidthChange])
+
+  // Collapse / Expand all
+  const allFolderIds = folders.map(f => f.id)
+  const foldersWithContent = folders.filter(f =>
+    files.some(file => file.folder_id === f.id) || folders.some(sub => sub.parent_id === f.id)
+  )
+  const allExpanded = foldersWithContent.length > 0 && foldersWithContent.every(f => expandedFolders.has(f.id))
+
+  function toggleAllFolders() {
+    if (allExpanded) {
+      setExpandedFolders(new Set())
+    } else {
+      setExpandedFolders(new Set(allFolderIds))
+    }
+  }
 
   function toggleFolder(id: string) {
     setExpandedFolders(prev => {
@@ -408,20 +455,52 @@ export default function Sidebar({
     transform: open ? 'translateX(0)' : 'translateX(-100%)',
     transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
   } : {
-    width: open ? '260px' : '0px',
-    minWidth: open ? '260px' : '0px',
+    width: open ? `${sidebarWidth}px` : '0px',
+    minWidth: open ? `${sidebarWidth}px` : '0px',
     background: '#111118',
     borderRight: '1px solid #1e1e2a',
     overflow: open ? 'auto' : 'hidden',
-    transition: 'width 0.2s ease, min-width 0.2s ease',
+    transition: isResizing.current ? 'none' : 'width 0.2s ease, min-width 0.2s ease',
     display: 'flex',
     flexDirection: 'column',
+    position: 'relative',
   }
 
   return (
     <>
       <div style={sidebarStyle}>
         {(open || isMobile) && (
+          <>
+          {/* Sidebar header with collapse/expand all */}
+          {foldersWithContent.length > 0 && (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+              padding: '6px 10px 0',
+              borderBottom: '1px solid #1a1a24',
+              paddingBottom: '6px',
+            }}>
+              <button
+                onClick={toggleAllFolders}
+                title={allExpanded ? 'Collapse all' : 'Expand all'}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: '#3a3a52', padding: '3px 5px', borderRadius: '4px',
+                  display: 'flex', alignItems: 'center', gap: '2px',
+                  transition: 'all 0.12s', fontSize: '10px', fontFamily: 'inherit',
+                  letterSpacing: '0.03em',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#6366f1'; e.currentTarget.style.background = 'rgba(99,102,241,0.08)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#3a3a52'; e.currentTarget.style.background = 'none' }}
+              >
+                {/* Double chevron icon — up = collapse, down = expand */}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ transform: allExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <polyline points="17 11 12 6 7 11"/>
+                  <polyline points="17 18 12 13 7 18"/>
+                </svg>
+              </button>
+            </div>
+          )}
           <div style={{ padding: '12px 8px', flex: 1 }}>
             {loading ? (
               <div style={{ padding: '20px 12px' }}>
@@ -507,6 +586,22 @@ export default function Sidebar({
               </DndContext>
             )}
           </div>
+          {/* Resize handle — only on desktop */}
+          {!isMobile && (
+            <div
+              onMouseDown={handleResizeMouseDown}
+              style={{
+                position: 'absolute', top: 0, right: 0, bottom: 0,
+                width: '4px', cursor: 'col-resize',
+                background: 'rgba(99,102,241,0.08)',
+                transition: 'background 0.15s',
+                zIndex: 10,
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(99,102,241,0.35)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(99,102,241,0.08)' }}
+            />
+          )}
+          </>
         )}
       </div>
 

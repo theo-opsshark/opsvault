@@ -19,6 +19,13 @@ export default function AppShell({ user }: Props) {
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('opsvault-sidebar-width')
+      if (saved) return Math.max(180, Math.min(480, parseInt(saved, 10)))
+    }
+    return 260
+  })
 
   const supabase = createSupabaseBrowserClient()
 
@@ -36,8 +43,8 @@ export default function AppShell({ user }: Props) {
 
   const loadData = useCallback(async () => {
     const [{ data: foldersData }, { data: filesData }] = await Promise.all([
-      supabase.from('folders').select('*').order('sort_order', { ascending: true, nullsFirst: false }),
-      supabase.from('files').select('*').order('sort_order', { ascending: true, nullsFirst: false }),
+      supabase.from('folders').select('*').order('created_at', { ascending: true }),
+      supabase.from('files').select('*').order('created_at', { ascending: true }),
     ])
     // Sort by created_at for nulls
     const sortedFolders = (foldersData ?? []).sort((a, b) => {
@@ -192,6 +199,11 @@ export default function AppShell({ user }: Props) {
           activeFileId={activeFileId}
           open={sidebarOpen}
           isMobile={isMobile}
+          sidebarWidth={sidebarWidth}
+          onSidebarWidthChange={(w) => {
+            setSidebarWidth(w)
+            localStorage.setItem('opsvault-sidebar-width', String(w))
+          }}
           onSelectFile={handleSelectFile}
           onNewFile={handleNewFile}
           onNewFolder={handleNewFolder}
