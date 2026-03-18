@@ -5,6 +5,7 @@ import DashboardTopBar from '@/components/dashboard/DashboardTopBar'
 import WeatherWidget from '@/components/dashboard/WeatherWidget'
 import StockWidget from '@/components/dashboard/StockWidget'
 import FreshBooksWidget from '@/components/dashboard/FreshBooksWidget'
+import KuberaWidget from '@/components/dashboard/KuberaWidget'
 import RecentFilesWidget from '@/components/dashboard/RecentFilesWidget'
 
 function WidgetSkeleton() {
@@ -86,26 +87,31 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Smart Grid Layout: Weather (1 col wide), FreshBooks + Stocks (right stack), Recent Files (full width below) */}
+        {/* Smart Grid Layout: 2 rows, 2 columns for top widgets */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
+          gridTemplateColumns: '1fr 1fr',
           gap: '24px',
           marginBottom: '24px',
         }}
           className="dashboard-grid-main"
         >
-          {/* Weather takes up left column */}
+          {/* Weather takes top-left */}
           <Suspense fallback={<WidgetSkeleton />}>
             <WeatherWidget />
           </Suspense>
 
-          {/* FreshBooks takes middle column */}
+          {/* FreshBooks takes top-right */}
           <Suspense fallback={<WidgetSkeleton />}>
             <FreshBooksWidget />
           </Suspense>
 
-          {/* Stocks takes right column */}
+          {/* Kubera takes middle-left */}
+          <Suspense fallback={<WidgetSkeleton />}>
+            <KuberaWidget />
+          </Suspense>
+
+          {/* Stocks takes middle-right */}
           <Suspense fallback={<WidgetSkeleton />}>
             <StockWidget />
           </Suspense>
