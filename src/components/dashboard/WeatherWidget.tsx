@@ -32,10 +32,12 @@ export default async function WeatherWidget() {
   }
 
   const cardStyle: React.CSSProperties = {
-    background: '#16161e',
-    border: '1px solid #2a2a3a',
-    borderRadius: '12px',
-    padding: '20px',
+    background: 'linear-gradient(135deg, #1a1a24 0%, #16161e 100%)',
+    border: '1px solid #2a2a3e',
+    borderRadius: '14px',
+    padding: '28px',
+    position: 'relative',
+    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
   }
 
   if (error || !data) {
@@ -55,36 +57,57 @@ export default async function WeatherWidget() {
 
   return (
     <div style={cardStyle}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a4a6a', marginBottom: '16px', fontWeight: '600' }}>
-        Weather · Westlake, OH
+      <style>{`
+        .weather-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #4a4a6a; font-weight: 600; }
+        .weather-temp-huge { font-size: 72px; font-weight: 300; color: #e2e8f0; line-height: 0.9; margin-bottom: 8px; }
+        .weather-condition { font-size: 16px; color: #94a3b8; font-weight: 400; }
+        .weather-stat-label { font-size: 11px; color: #4a4a6a; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+        .weather-stat-value { font-size: 14px; color: #e2e8f0; font-weight: 500; }
+        .forecast-pill {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid #2a2a3e;
+          border-radius: 10px;
+          padding: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          transition: all 0.2s ease;
+        }
+        .forecast-pill:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: #3a3a4e;
+          transform: translateY(-1px);
+        }
+      `}</style>
+
+      <div className="weather-label">Weather · Westlake, OH</div>
+
+      {/* Current temp - HUGE */}
+      <div style={{ marginBottom: '16px' }}>
+        <div className="weather-temp-huge">{Math.round(c.temperature_2m)}°</div>
+        <div className="weather-condition">{weather.emoji} {weather.label}</div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+
+      {/* Wind & Humidity - 2 col grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
         <div>
-          <div style={{ fontSize: '48px', fontWeight: '300', color: '#e2e8f0', lineHeight: 1, marginBottom: '6px' }}>
-            {Math.round(c.temperature_2m)}°
-          </div>
-          <div style={{ fontSize: '14px', color: '#94a3b8' }}>
-            {weather.emoji} {weather.label}
-          </div>
-        </div>
-      </div>
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '16px' }}>
-        <div>
-          <div style={{ fontSize: '11px', color: '#4a4a6a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>Wind</div>
-          <div style={{ fontSize: '13px', color: '#94a3b8' }}>{Math.round(c.windspeed_10m)} mph</div>
+          <div className="weather-stat-label">Wind</div>
+          <div className="weather-stat-value">{Math.round(c.windspeed_10m)} mph</div>
         </div>
         <div>
-          <div style={{ fontSize: '11px', color: '#4a4a6a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>Humidity</div>
-          <div style={{ fontSize: '13px', color: '#94a3b8' }}>{c.relative_humidity_2m}%</div>
+          <div className="weather-stat-label">Humidity</div>
+          <div className="weather-stat-value">{c.relative_humidity_2m}%</div>
         </div>
       </div>
 
+      {/* 5-Day Forecast */}
       {daily && daily.time && daily.time.length > 1 && (
-        <div style={{ borderTop: '1px solid #2a2a3a', paddingTop: '12px' }}>
-          <div style={{ fontSize: '11px', color: '#4a4a6a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', fontWeight: '600' }}>
+        <div style={{ borderTop: '1px solid #2a2a3e', paddingTop: '16px' }}>
+          <div className="weather-label" style={{ marginBottom: '12px' }}>
             5-Day Forecast
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {daily.time.slice(1, 6).map((date, idx) => {
               const dayNum = idx + 1
               const weatherCode = daily.weathercode[dayNum]
@@ -94,11 +117,11 @@ export default async function WeatherWidget() {
               const dateObj = new Date(date)
               const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()]
               return (
-                <div key={date} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
-                  <div style={{ color: '#94a3b8', minWidth: '35px' }}>{dayName}</div>
-                  <div style={{ color: '#64748b' }}>{dayWeather.emoji}</div>
-                  <div style={{ color: '#94a3b8', minWidth: '45px', textAlign: 'right' }}>
-                    {high}° / {low}°
+                <div key={date} className="forecast-pill">
+                  <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '500', minWidth: '40px' }}>{dayName}</div>
+                  <div style={{ fontSize: '18px' }}>{dayWeather.emoji}</div>
+                  <div style={{ color: '#e2e8f0', fontSize: '13px', fontWeight: '500', marginLeft: 'auto' }}>
+                    {high}° / <span style={{ color: '#64748b' }}>{low}°</span>
                   </div>
                 </div>
               )

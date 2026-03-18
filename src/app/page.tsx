@@ -10,16 +10,30 @@ import RecentFilesWidget from '@/components/dashboard/RecentFilesWidget'
 function WidgetSkeleton() {
   return (
     <div style={{
-      background: '#16161e',
-      border: '1px solid #2a2a3a',
-      borderRadius: '12px',
-      padding: '20px',
-      minHeight: '160px',
+      background: 'linear-gradient(135deg, #1a1a24 0%, #16161e 100%)',
+      border: '1px solid #2a2a3e',
+      borderRadius: '14px',
+      padding: '24px',
+      minHeight: '200px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-      <div style={{ color: '#2a2a3a', fontSize: '12px' }}>Loading…</div>
+      <style>{`
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+        }
+      `}</style>
+      <div style={{
+        color: '#2a2a3a',
+        fontSize: '12px',
+        animation: 'pulse-glow 2s ease-in-out infinite',
+      }}>
+        Loading…
+      </div>
     </div>
   )
 }
@@ -43,58 +57,80 @@ export default async function DashboardPage() {
 
       <main style={{
         flex: 1,
-        padding: '28px 24px',
-        maxWidth: '1200px',
+        padding: '40px 32px',
+        maxWidth: '1400px',
         width: '100%',
         margin: '0 auto',
         boxSizing: 'border-box',
       }}>
-        {/* Page title */}
-        <div style={{ marginBottom: '28px' }}>
+        {/* Hero Section: Title + Quick Stats */}
+        <div style={{ marginBottom: '40px' }}>
           <h1 style={{
-            fontSize: '22px',
-            fontWeight: '600',
+            fontSize: '32px',
+            fontWeight: '700',
             color: '#e2e8f0',
             margin: 0,
-            letterSpacing: '-0.02em',
+            letterSpacing: '-0.03em',
+            marginBottom: '8px',
           }}>
-            Dashboard
+            Your Workspace
           </h1>
-          <p style={{ fontSize: '13px', color: '#4a4a6a', margin: '4px 0 0' }}>
-            Good day, Travis. Here&apos;s what&apos;s going on.
+          <p style={{
+            fontSize: '14px',
+            color: '#64748b',
+            margin: 0,
+            fontWeight: '400',
+            letterSpacing: '0.01em',
+          }}>
+            Everything at a glance • Stay focused
           </p>
         </div>
 
-        {/* Row 1: 3-col grid */}
+        {/* Smart Grid Layout: Weather (1 col wide), FreshBooks + Stocks (right stack), Recent Files (full width below) */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '16px',
-          marginBottom: '16px',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          gap: '24px',
+          marginBottom: '24px',
         }}
-          className="dashboard-grid-row1"
+          className="dashboard-grid-main"
         >
+          {/* Weather takes up left column */}
           <Suspense fallback={<WidgetSkeleton />}>
             <WeatherWidget />
           </Suspense>
+
+          {/* FreshBooks takes middle column */}
           <Suspense fallback={<WidgetSkeleton />}>
             <FreshBooksWidget />
           </Suspense>
+
+          {/* Stocks takes right column */}
           <Suspense fallback={<WidgetSkeleton />}>
             <StockWidget />
           </Suspense>
         </div>
 
-        {/* Row 2: Full width */}
+        {/* Recent Files: Full width */}
         <Suspense fallback={<WidgetSkeleton />}>
           <RecentFilesWidget />
         </Suspense>
       </main>
 
       <style>{`
+        @media (max-width: 1024px) {
+          .dashboard-grid-main {
+            grid-template-columns: 1fr 1fr !important;
+          }
+        }
+
         @media (max-width: 768px) {
-          .dashboard-grid-row1 {
+          .dashboard-grid-main {
             grid-template-columns: 1fr !important;
+          }
+          
+          main {
+            padding: 28px 20px !important;
           }
         }
       `}</style>

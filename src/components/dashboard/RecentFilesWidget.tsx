@@ -83,55 +83,67 @@ export default async function RecentFilesWidget() {
 
   return (
     <div style={{
-      background: '#16161e',
-      border: '1px solid #2a2a3a',
-      borderRadius: '12px',
-      padding: '20px',
+      background: 'linear-gradient(135deg, #1a1a24 0%, #16161e 100%)',
+      border: '1px solid #2a2a3e',
+      borderRadius: '14px',
+      padding: '28px',
+      position: 'relative',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
     }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a4a6a', marginBottom: '16px', fontWeight: '600' }}>
-        Recent Files
+      <style>{`
+        .file-row {
+          padding: 12px 14px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid #2a2a3e;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          transition: all 0.2s ease;
+        }
+        .file-row:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: #3a3a4e;
+          transform: translateY(-1px);
+        }
+        .file-icon { font-size: 18px; flex-shrink: 0; }
+        .file-name { font-size: 14px; color: #e2e8f0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-path { font-size: 11px; color: #64748b; margin-top: 2px; }
+        .file-time { font-size: 11px; color: #4a4a6a; flex-shrink: 0; font-weight: 500; }
+      `}</style>
+
+      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a4a6a', marginBottom: '20px', fontWeight: '600' }}>
+        📄 Recent Files
       </div>
 
       {error ? (
-        <div style={{ color: '#4a4a6a', fontSize: '13px' }}>Unable to load recent files</div>
+        <div style={{ color: '#4a4a6a', fontSize: '13px', padding: '16px', textAlign: 'center' }}>
+          Unable to load recent files
+        </div>
       ) : files.length === 0 ? (
-        <div style={{ color: '#4a4a6a', fontSize: '13px' }}>No files yet</div>
+        <div style={{ color: '#4a4a6a', fontSize: '13px', padding: '16px', textAlign: 'center' }}>
+          No files yet
+        </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          {files.map((file, i) => {
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '12px' }}>
+          {files.map((file) => {
             const folderPath = buildFolderPath(file.folder_id, folders)
             const displayName = file.name.replace(/\.md$/, '')
             const timestamp = file.updated_at || file.created_at
             return (
               <div
                 key={file.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  background: i % 2 === 0 ? '#1a1a24' : 'transparent',
-                  gap: '12px',
-                }}
+                className="file-row"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                  </svg>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', minWidth: 0, flex: 1 }}>
+                  <div className="file-icon">📝</div>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '13px', color: '#e2e8f0', fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {displayName}
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#4a4a6a', marginTop: '1px' }}>
-                      {folderPath}
-                    </div>
+                    <div className="file-name">{displayName}</div>
+                    <div className="file-path">{folderPath}</div>
                   </div>
                 </div>
-                <div style={{ fontSize: '11px', color: '#4a4a6a', flexShrink: 0 }}>
-                  {timeAgo(timestamp)}
-                </div>
+                <div className="file-time">{timeAgo(timestamp)}</div>
               </div>
             )
           })}

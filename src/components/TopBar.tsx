@@ -233,7 +233,7 @@ export default function TopBar({
                 transition: 'all 0.15s',
               }}
             >
-              Vault
+              Wiki
             </Link>
           </div>
         </div>

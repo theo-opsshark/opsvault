@@ -48,10 +48,12 @@ function formatUSD(amount: number) {
 
 export default async function FreshBooksWidget() {
   const cardStyle: React.CSSProperties = {
-    background: '#16161e',
-    border: '1px solid #2a2a3a',
-    borderRadius: '12px',
-    padding: '20px',
+    background: 'linear-gradient(135deg, #1a1a24 0%, #16161e 100%)',
+    border: '1px solid #2a2a3e',
+    borderRadius: '14px',
+    padding: '28px',
+    position: 'relative',
+    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
   }
 
   const labelStyle: React.CSSProperties = {
@@ -59,7 +61,7 @@ export default async function FreshBooksWidget() {
     textTransform: 'uppercase' as const,
     letterSpacing: '0.08em',
     color: '#4a4a6a',
-    marginBottom: '16px',
+    marginBottom: '20px',
     fontWeight: '600',
   }
 
@@ -107,39 +109,73 @@ export default async function FreshBooksWidget() {
       label: 'Outstanding',
       count: outstanding.length,
       amount: formatUSD(outstandingTotal),
+      icon: '📝',
       color: outstanding.length > 0 ? '#fbbf24' : '#4a4a6a',
+      bgColor: 'rgba(251, 191, 36, 0.1)',
     },
     {
       label: 'Draft',
       count: draft.length,
       amount: null,
+      icon: '✏️',
       color: '#64748b',
+      bgColor: 'rgba(100, 116, 139, 0.08)',
     },
     {
-      label: 'Paid this month',
+      label: 'Paid',
       count: paidThisMonth.length,
       amount: formatUSD(paidTotal),
+      icon: '✅',
       color: '#4ade80',
+      bgColor: 'rgba(74, 222, 128, 0.1)',
     },
   ]
 
   return (
     <div style={cardStyle}>
-      <div style={labelStyle}>FreshBooks</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <style>{`
+        .metric-card {
+          background: var(--bg);
+          border: 1px solid #2a2a3e;
+          border-radius: 10px;
+          padding: 14px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.2s ease;
+        }
+        .metric-card:hover {
+          border-color: #3a3a4e;
+          background: rgba(255, 255, 255, 0.02);
+          transform: translateY(-1px);
+        }
+        .metric-icon { font-size: 20px; }
+        .metric-count { font-size: 20px; font-weight: 700; color: var(--color); }
+        .metric-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+      `}</style>
+
+      <div style={labelStyle}>💼 FreshBooks</div>
+
+      {/* 3-col mini grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
         {rows.map(row => (
-          <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontSize: '12px', color: '#94a3b8' }}>{row.label}</div>
-              <div style={{ fontSize: '20px', fontWeight: '600', color: row.color, lineHeight: 1.2 }}>
-                {row.count}
-                {row.amount && (
-                  <span style={{ fontSize: '13px', fontWeight: '400', color: '#64748b', marginLeft: '8px' }}>
-                    {row.amount}
-                  </span>
-                )}
+          <div
+            key={row.label}
+            className="metric-card"
+            style={{
+              '--bg': row.bgColor,
+              '--color': row.color,
+            } as React.CSSProperties}
+          >
+            <div className="metric-icon">{row.icon}</div>
+            <div className="metric-count">{row.count}</div>
+            <div className="metric-label">{row.label}</div>
+            {row.amount && (
+              <div style={{ fontSize: '10px', color: '#4a4a6a', marginTop: '2px' }}>
+                {row.amount}
               </div>
-            </div>
+            )}
           </div>
         ))}
       </div>

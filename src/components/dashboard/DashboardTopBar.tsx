@@ -68,7 +68,7 @@ export default function DashboardTopBar() {
           Dashboard
         </Link>
         <Link href="/vault" style={navLinkStyle(pathname === '/vault' || pathname.startsWith('/vault'))}>
-          Vault
+          Wiki
         </Link>
       </div>
 
