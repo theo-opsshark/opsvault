@@ -157,7 +157,12 @@ export default async function FreshBooksWidget() {
         .metric-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
       `}</style>
 
-      <div style={labelStyle}>💼 FreshBooks</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <div style={labelStyle}>FreshBooks</div>
+        <div style={{ fontSize: '9px', color: '#4a4a6a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          This Month
+        </div>
+      </div>
 
       {/* 3-col mini grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>

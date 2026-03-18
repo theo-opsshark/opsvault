@@ -87,26 +87,26 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Smart Grid Layout: 2 rows, 2 columns for top widgets */}
+        {/* Smart Grid Layout: 4 columns for compact widgets */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '18px',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '16px',
           marginBottom: '18px',
         }}
           className="dashboard-grid-main"
         >
-          {/* Weather takes top-left */}
+          {/* Weather */}
           <Suspense fallback={<WidgetSkeleton />}>
             <WeatherWidget />
           </Suspense>
 
-          {/* FreshBooks takes top-right */}
+          {/* FreshBooks */}
           <Suspense fallback={<WidgetSkeleton />}>
             <FreshBooksWidget />
           </Suspense>
 
-          {/* Stocks takes middle-right */}
+          {/* Stocks */}
           <Suspense fallback={<WidgetSkeleton />}>
             <StockWidget />
           </Suspense>
@@ -119,9 +119,15 @@ export default async function DashboardPage() {
       </main>
 
       <style>{`
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
           .dashboard-grid-main {
-            grid-template-columns: 1fr 1fr !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
+        }
+
+        @media (max-width: 900px) {
+          .dashboard-grid-main {
+            grid-template-columns: repeat(2, 1fr) !important;
           }
         }
 
