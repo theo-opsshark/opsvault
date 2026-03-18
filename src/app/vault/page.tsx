@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import AppShell from '@/components/AppShell'
+import VaultClient from '@/components/VaultClient'
 
 export default async function VaultPage() {
   const cookieStore = await cookies()
@@ -10,5 +10,5 @@ export default async function VaultPage() {
     redirect('/login')
   }
 
-  return <AppShell user={null} />
+  return <VaultClient user={null} />
 }

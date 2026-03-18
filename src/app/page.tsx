@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
-import DashboardTopBar from '@/components/dashboard/DashboardTopBar'
+import DashboardClient from '@/components/DashboardClient'
 import WeatherWidget from '@/components/dashboard/WeatherWidget'
 import StockWidget from '@/components/dashboard/StockWidget'
 import FreshBooksWidget from '@/components/dashboard/FreshBooksWidget'
@@ -48,14 +48,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-      background: '#0f0f13',
-    }}>
-      <DashboardTopBar />
-
+    <DashboardClient>
       <main style={{
         flex: 1,
         padding: '32px 28px',
@@ -141,6 +134,6 @@ export default async function DashboardPage() {
           }
         }
       `}</style>
-    </div>
+    </DashboardClient>
   )
 }
