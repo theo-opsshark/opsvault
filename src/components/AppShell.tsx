@@ -218,6 +218,7 @@ export default function AppShell({ user }: Props) {
         <MainPanel
           file={activeFile}
           onSave={handleSaveFile}
+          onRename={handleRenameFile}
           sidebarOpen={sidebarOpen}
         />
       </div>

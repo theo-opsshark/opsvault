@@ -10,19 +10,48 @@ interface Props {
   sidebarOpen: boolean
 }
 
-export default function MainPanel({ file, onSave, sidebarOpen }: Props) {
+interface Props {
+  file: VaultFile | null
+  onSave: (id: string, content: string) => Promise<void>
+  onRename?: (id: string, name: string) => Promise<void>
+  sidebarOpen: boolean
+}
+
+export default function MainPanel({ file, onSave, onRename, sidebarOpen }: Props) {
   const [mode, setMode] = useState<'view' | 'edit'>('view')
   const [draft, setDraft] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [renamingTitle, setRenamingTitle] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const renameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (file) {
       setDraft(file.content)
       setMode('view')
+      setNewTitle(file.name.replace(/\.md$/, ''))
     }
   }, [file?.id])
+
+  useEffect(() => {
+    if (renamingTitle && renameInputRef.current) {
+      renameInputRef.current.focus()
+      renameInputRef.current.select()
+    }
+  }, [renamingTitle])
+
+  const handleRenameSubmit = async () => {
+    if (!file || !newTitle.trim() || newTitle === file.name.replace(/\.md$/, '')) {
+      setRenamingTitle(false)
+      return
+    }
+    if (onRename) {
+      await onRename(file.id, newTitle.trim() + '.md')
+    }
+    setRenamingTitle(false)
+  }
 
   const autoSave = useCallback(async (content: string) => {
     if (!file) return
@@ -107,14 +136,38 @@ export default function MainPanel({ file, onSave, sidebarOpen }: Props) {
         flexShrink: 0,
       }}>
         {/* File path / name */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1, cursor: 'pointer' }} onClick={() => setRenamingTitle(true)}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4a4a5e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
           </svg>
-          <span style={{ color: '#64748b', fontSize: '13px' }}>
-            {file.name.replace(/\.md$/, '')}
-          </span>
+          {renamingTitle ? (
+            <input
+              ref={renameInputRef}
+              type="text"
+              value={newTitle}
+              onChange={e => setNewTitle(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleRenameSubmit()
+                if (e.key === 'Escape') setRenamingTitle(false)
+              }}
+              onBlur={handleRenameSubmit}
+              style={{
+                background: 'rgba(139,92,246,0.1)',
+                border: '1px solid rgba(139,92,246,0.3)',
+                borderRadius: '4px',
+                color: '#c4b5fd',
+                fontSize: '13px',
+                padding: '3px 6px',
+                fontFamily: 'inherit',
+                outline: 'none',
+              }}
+            />
+          ) : (
+            <span style={{ color: '#64748b', fontSize: '13px' }}>
+              {file.name.replace(/\.md$/, '')}
+            </span>
+          )}
           <span style={{
             color: '#2a2a3a',
             fontSize: '11px',
