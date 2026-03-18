@@ -10,6 +10,7 @@ export type Folder = {
   name: string
   parent_id: string | null
   created_at: string
+  sort_order: number | null
 }
 
 export type VaultFile = {
@@ -20,4 +21,5 @@ export type VaultFile = {
   author: string
   created_at: string
   updated_at: string
+  sort_order: number | null
 }
