@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
 import type { Folder, VaultFile } from '@/lib/supabase'
 
 interface SearchResult {
@@ -73,6 +74,7 @@ export default function TopBar({
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const pathname = usePathname()
   const supabase = createSupabaseBrowserClient()
 
   // Close dropdown on outside click
@@ -181,7 +183,7 @@ export default function TopBar({
         )}
       </button>
 
-      {/* Wordmark — hidden on mobile to save space */}
+      {/* Wordmark + nav — hidden on mobile to save space */}
       {!isMobile && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
           <div style={{
@@ -197,14 +199,43 @@ export default function TopBar({
               <rect x="3" y="13" width="8" height="8" rx="1.5" opacity="0.6"/>
             </svg>
           </div>
-          <span style={{
+          <Link href="/vault" style={{
             fontSize: '15px', fontWeight: '600',
             background: 'linear-gradient(135deg, #e2e8f0, #94a3b8)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            letterSpacing: '-0.01em',
+            letterSpacing: '-0.01em', textDecoration: 'none',
           }}>
             OpsVault
-          </span>
+          </Link>
+          {/* Nav links */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '8px' }}>
+            <Link
+              href="/"
+              style={{
+                fontSize: '12px', fontWeight: '500', textDecoration: 'none',
+                color: pathname === '/' ? '#a78bfa' : '#64748b',
+                padding: '3px 9px', borderRadius: '6px',
+                background: pathname === '/' ? 'rgba(139,92,246,0.1)' : 'none',
+                border: pathname === '/' ? '1px solid rgba(139,92,246,0.2)' : '1px solid transparent',
+                transition: 'all 0.15s',
+              }}
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/vault"
+              style={{
+                fontSize: '12px', fontWeight: '500', textDecoration: 'none',
+                color: pathname === '/vault' || pathname.startsWith('/vault') ? '#a78bfa' : '#64748b',
+                padding: '3px 9px', borderRadius: '6px',
+                background: pathname === '/vault' || pathname.startsWith('/vault') ? 'rgba(139,92,246,0.1)' : 'none',
+                border: pathname === '/vault' || pathname.startsWith('/vault') ? '1px solid rgba(139,92,246,0.2)' : '1px solid transparent',
+                transition: 'all 0.15s',
+              }}
+            >
+              Vault
+            </Link>
+          </div>
         </div>
       )}
 
