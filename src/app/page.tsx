@@ -58,14 +58,14 @@ export default async function DashboardPage() {
 
       <main style={{
         flex: 1,
-        padding: '40px 32px',
+        padding: '32px 28px',
         maxWidth: '1400px',
         width: '100%',
         margin: '0 auto',
         boxSizing: 'border-box',
       }}>
         {/* Hero Section: Title + Quick Stats */}
-        <div style={{ marginBottom: '40px' }}>
+        <div style={{ marginBottom: '28px' }}>
           <h1 style={{
             fontSize: '32px',
             fontWeight: '700',
@@ -91,8 +91,8 @@ export default async function DashboardPage() {
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '24px',
-          marginBottom: '24px',
+          gap: '18px',
+          marginBottom: '18px',
         }}
           className="dashboard-grid-main"
         >

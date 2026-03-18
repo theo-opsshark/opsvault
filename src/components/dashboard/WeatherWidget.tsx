@@ -1,12 +1,14 @@
-function getWeatherDescription(code: number): { label: string; emoji: string } {
-  if (code === 0) return { label: 'Clear sky', emoji: '☀️' }
-  if (code <= 3) return { label: 'Partly cloudy', emoji: '⛅' }
-  if (code === 45 || code === 48) return { label: 'Foggy', emoji: '🌫️' }
-  if ([51, 53, 55, 61, 63, 65].includes(code)) return { label: 'Rainy', emoji: '🌧️' }
-  if ([71, 73, 75, 77].includes(code)) return { label: 'Snowy', emoji: '❄️' }
-  if ([80, 81, 82].includes(code)) return { label: 'Showers', emoji: '🌦️' }
-  if ([95, 96, 99].includes(code)) return { label: 'Thunderstorm', emoji: '⛈️' }
-  return { label: 'Unknown', emoji: '🌡️' }
+import { IconSun, IconCloud, IconRain, IconSnow, IconThunder } from './SvgIcons'
+
+function getWeatherDescription(code: number): { label: string; icon: React.ReactNode } {
+  if (code === 0) return { label: 'Clear sky', icon: <IconSun /> }
+  if (code <= 3) return { label: 'Partly cloudy', icon: <IconCloud /> }
+  if (code === 45 || code === 48) return { label: 'Foggy', icon: <IconCloud /> }
+  if ([51, 53, 55, 61, 63, 65].includes(code)) return { label: 'Rainy', icon: <IconRain /> }
+  if ([71, 73, 75, 77].includes(code)) return { label: 'Snowy', icon: <IconSnow /> }
+  if ([80, 81, 82].includes(code)) return { label: 'Showers', icon: <IconRain /> }
+  if ([95, 96, 99].includes(code)) return { label: 'Thunderstorm', icon: <IconThunder /> }
+  return { label: 'Unknown', icon: <IconCloud /> }
 }
 
 async function fetchWeather() {
@@ -35,7 +37,7 @@ export default async function WeatherWidget() {
     background: 'linear-gradient(135deg, #1a1a24 0%, #16161e 100%)',
     border: '1px solid #2a2a3e',
     borderRadius: '14px',
-    padding: '28px',
+    padding: '16px',
     position: 'relative',
     boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
   }
@@ -59,19 +61,20 @@ export default async function WeatherWidget() {
     <div style={cardStyle}>
       <style>{`
         .weather-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #4a4a6a; font-weight: 600; }
-        .weather-temp-huge { font-size: 72px; font-weight: 300; color: #e2e8f0; line-height: 0.9; margin-bottom: 8px; }
-        .weather-condition { font-size: 16px; color: #94a3b8; font-weight: 400; }
-        .weather-stat-label { font-size: 11px; color: #4a4a6a; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-        .weather-stat-value { font-size: 14px; color: #e2e8f0; font-weight: 500; }
+        .weather-temp-huge { font-size: 56px; font-weight: 300; color: #e2e8f0; line-height: 0.9; margin-bottom: 4px; }
+        .weather-condition { font-size: 14px; color: #94a3b8; font-weight: 400; display: flex; align-items: center; gap: 6px; }
+        .weather-icon { width: 20px; height: 20px; color: #64748b; flex-shrink: 0; }
+        .weather-stat-label { font-size: 10px; color: #4a4a6a; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+        .weather-stat-value { font-size: 13px; color: #e2e8f0; font-weight: 500; }
         .forecast-pill {
           background: rgba(255, 255, 255, 0.02);
           border: 1px solid #2a2a3e;
-          border-radius: 10px;
-          padding: 12px;
+          border-radius: 8px;
+          padding: 8px 10px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 12px;
+          gap: 8px;
           transition: all 0.2s ease;
         }
         .forecast-pill:hover {
@@ -84,13 +87,16 @@ export default async function WeatherWidget() {
       <div className="weather-label">Weather · Westlake, OH</div>
 
       {/* Current temp - HUGE */}
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: '10px' }}>
         <div className="weather-temp-huge">{Math.round(c.temperature_2m)}°</div>
-        <div className="weather-condition">{weather.emoji} {weather.label}</div>
+        <div className="weather-condition">
+          <span className="weather-icon">{weather.icon}</span>
+          {weather.label}
+        </div>
       </div>
 
       {/* Wind & Humidity - 2 col grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
         <div>
           <div className="weather-stat-label">Wind</div>
           <div className="weather-stat-value">{Math.round(c.windspeed_10m)} mph</div>
@@ -103,11 +109,11 @@ export default async function WeatherWidget() {
 
       {/* 5-Day Forecast */}
       {daily && daily.time && daily.time.length > 1 && (
-        <div style={{ borderTop: '1px solid #2a2a3e', paddingTop: '16px' }}>
-          <div className="weather-label" style={{ marginBottom: '12px' }}>
+        <div style={{ borderTop: '1px solid #2a2a3e', paddingTop: '10px' }}>
+          <div className="weather-label" style={{ marginBottom: '8px' }}>
             5-Day Forecast
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {daily.time.slice(1, 6).map((date, idx) => {
               const dayNum = idx + 1
               const weatherCode = daily.weathercode[dayNum]
@@ -118,9 +124,9 @@ export default async function WeatherWidget() {
               const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()]
               return (
                 <div key={date} className="forecast-pill">
-                  <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '500', minWidth: '40px' }}>{dayName}</div>
-                  <div style={{ fontSize: '18px' }}>{dayWeather.emoji}</div>
-                  <div style={{ color: '#e2e8f0', fontSize: '13px', fontWeight: '500', marginLeft: 'auto' }}>
+                  <div style={{ color: '#94a3b8', fontSize: '12px', fontWeight: '500', minWidth: '32px' }}>{dayName}</div>
+                  <div style={{ width: '18px', height: '18px', color: '#64748b', flex: '0 0 auto' }}>{dayWeather.icon}</div>
+                  <div style={{ color: '#e2e8f0', fontSize: '12px', fontWeight: '500', marginLeft: 'auto' }}>
                     {high}° / <span style={{ color: '#64748b' }}>{low}°</span>
                   </div>
                 </div>
