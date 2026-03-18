@@ -5,7 +5,7 @@ import DashboardTopBar from '@/components/dashboard/DashboardTopBar'
 import WeatherWidget from '@/components/dashboard/WeatherWidget'
 import StockWidget from '@/components/dashboard/StockWidget'
 import FreshBooksWidget from '@/components/dashboard/FreshBooksWidget'
-import KuberaWidget from '@/components/dashboard/KuberaWidget'
+// import KuberaWidget from '@/components/dashboard/KuberaWidget'
 import RecentFilesWidget from '@/components/dashboard/RecentFilesWidget'
 
 function WidgetSkeleton() {
@@ -104,11 +104,6 @@ export default async function DashboardPage() {
           {/* FreshBooks takes top-right */}
           <Suspense fallback={<WidgetSkeleton />}>
             <FreshBooksWidget />
-          </Suspense>
-
-          {/* Kubera takes middle-left */}
-          <Suspense fallback={<WidgetSkeleton />}>
-            <KuberaWidget />
           </Suspense>
 
           {/* Stocks takes middle-right */}
