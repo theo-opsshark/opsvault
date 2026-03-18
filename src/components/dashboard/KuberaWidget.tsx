@@ -328,13 +328,7 @@ export default async function KuberaWidget() {
           textAlign: 'center',
         }}
       >
-        Updated {new Date().toLocaleString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-        })}
+        Updated just now
       </div>
     </div>
   )
