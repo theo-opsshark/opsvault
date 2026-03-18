@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
-import Link from 'next/link'
 
 export default function DashboardTopBar() {
   const pathname = usePathname()
@@ -64,12 +63,30 @@ export default function DashboardTopBar() {
 
       {/* Nav links */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '8px' }}>
-        <Link href="/" style={navLinkStyle(pathname === '/')}>
+        <button
+          onClick={() => router.push('/')}
+          style={{
+            ...navLinkStyle(pathname === '/'),
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
           Dashboard
-        </Link>
-        <Link href="/vault" style={navLinkStyle(pathname === '/vault' || pathname.startsWith('/vault'))}>
+        </button>
+        <button
+          onClick={() => router.push('/vault')}
+          style={{
+            ...navLinkStyle(pathname === '/vault' || pathname.startsWith('/vault')),
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
           Wiki
-        </Link>
+        </button>
       </div>
 
       <div style={{ flex: 1 }} />
