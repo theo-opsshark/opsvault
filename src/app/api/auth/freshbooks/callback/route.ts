@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFileSync, chmodSync } from 'fs';
-import { join } from 'path';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -26,9 +24,7 @@ export async function GET(request: NextRequest) {
   try {
     const tokenResponse = await fetch('https://api.freshbooks.com/auth/oauth/token', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         grant_type: 'authorization_code',
         client_id: clientId,
@@ -46,24 +42,28 @@ export async function GET(request: NextRequest) {
 
     const tokens = await tokenResponse.json();
 
-    const tokenData = {
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
-      token_type: tokens.token_type,
-      expires_in: tokens.expires_in,
-      created_at: tokens.created_at || Math.floor(Date.now() / 1000),
-      scope: tokens.scope,
-    };
+    // Store tokens in Supabase (persistent across serverless invocations)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-    // Store tokens to file (server-side only, Vercel serverless — best effort)
-    try {
-      const tokenPath = '/root/.openclaw/freshbooks_token.json';
-      writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2), { encoding: 'utf8' });
-      chmodSync(tokenPath, 0o600);
-    } catch (fileErr) {
-      // On Vercel, filesystem writes outside /tmp are ephemeral or unavailable — log and continue
-      console.warn('Could not write token file:', fileErr);
-    }
+    await fetch(`${supabaseUrl}/rest/v1/integrations`, {
+      method: 'POST',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({
+        service: 'freshbooks',
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        token_type: tokens.token_type,
+        expires_in: tokens.expires_in,
+        created_at_ts: tokens.created_at || Math.floor(Date.now() / 1000),
+        scope: tokens.scope,
+      }),
+    });
 
     return NextResponse.redirect(new URL('/?freshbooks=connected', request.url));
   } catch (err) {
