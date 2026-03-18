@@ -91,10 +91,10 @@ export default async function FreshBooksWidget() {
   const currentMonth = now.getMonth()
   const currentYear = now.getFullYear()
 
-  const outstanding = invoices.filter(i => i.status === 4)
+  const outstanding = invoices.filter(i => !i.date_paid && i.status !== 2) // unpaid (excludes draft)
   const draft = invoices.filter(i => i.status === 2)
   const paidThisMonth = invoices.filter(i => {
-    if (i.status !== 1 || !i.date_paid) return false
+    if (!i.date_paid) return false
     const d = new Date(i.date_paid)
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear
   })
