@@ -73,7 +73,7 @@ export default async function DashboardPage() {
             letterSpacing: '-0.03em',
             marginBottom: '8px',
           }}>
-            Your Workspace
+            Dashboard
           </h1>
           <p style={{
             fontSize: '14px',
