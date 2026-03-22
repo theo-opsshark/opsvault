@@ -1,4 +1,5 @@
 import { IconWallet, IconDocument, IconCheckmark } from './SvgIcons'
+import { refreshFreshBooksToken } from '@/lib/freshbooks-refresh'
 
 const SUPABASE_URL = 'https://pxjwajevmuvsbygsmgjy.supabase.co'
 const SUPABASE_ANON_KEY =
@@ -14,7 +15,7 @@ interface Invoice {
 async function getFreshBooksToken(): Promise<string | null> {
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/integrations?service=eq.freshbooks&select=access_token&limit=1`,
+      `${SUPABASE_URL}/rest/v1/integrations?service=eq.freshbooks&select=access_token,created_at_ts,expires_in&limit=1`,
       {
         headers: {
           apikey: SUPABASE_ANON_KEY,
@@ -25,8 +26,24 @@ async function getFreshBooksToken(): Promise<string | null> {
     )
     if (!res.ok) return null
     const rows = await res.json()
-    return rows?.[0]?.access_token ?? null
-  } catch {
+    if (!rows || !rows[0]) return null
+
+    const { access_token, created_at_ts, expires_in } = rows[0]
+
+    // Check if token is expired (with 5-min buffer)
+    const now = Math.floor(Date.now() / 1000)
+    const tokenExpiresAt = created_at_ts + expires_in
+    const isExpired = now > tokenExpiresAt - 300 // 5 min buffer
+
+    if (isExpired) {
+      console.log('FreshBooks token expired, refreshing...')
+      const newToken = await refreshFreshBooksToken()
+      return newToken
+    }
+
+    return access_token ?? null
+  } catch (err) {
+    console.error('Error getting FreshBooks token:', err)
     return null
   }
 }
