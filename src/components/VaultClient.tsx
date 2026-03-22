@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
 import type { Folder, VaultFile } from '@/lib/supabase'
+import UnifiedTopBar from './UnifiedTopBar'
 import AppNav from './AppNav'
 import MainPanel from './MainPanel'
 
@@ -95,12 +96,21 @@ export default function VaultClient({ user }: Props) {
     <div
       style={{
         display: 'flex',
+        flexDirection: 'column',
         height: '100vh',
         background: '#0f0f13',
         overflow: 'hidden',
       }}
     >
-      <AppNav
+      <UnifiedTopBar />
+      <div
+        style={{
+          display: 'flex',
+          flex: 1,
+          overflow: 'hidden',
+        }}
+      >
+        <AppNav
         user={user}
         folders={folders}
         files={files}
@@ -115,12 +125,13 @@ export default function VaultClient({ user }: Props) {
         }}
         onSelectFile={handleSelectFile}
       />
-      <MainPanel
-        file={activeFile}
-        onSave={handleSaveFile}
-        onRename={handleRenameFile}
-        sidebarOpen={sidebarOpen}
-      />
+        <MainPanel
+          file={activeFile}
+          onSave={handleSaveFile}
+          onRename={handleRenameFile}
+          sidebarOpen={sidebarOpen}
+        />
+      </div>
     </div>
   )
 }
